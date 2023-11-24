@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 CORS_ALLOWED_ORIGINS = [
    
    "http://localhost:3000",
+   "https://yochaiankava.github.io/React-Final_Proj-Products/"
 #    "https://yochaiankava.github.io/React-Final_Proj-Products/"
    
 ]
