@@ -15,6 +15,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 # @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
 def products(request):
+    # print(request.headers)
     if request.method == 'GET':
         search = request.GET.get('search')
         maxprice = request.GET.get('maxprice')        
@@ -135,27 +136,52 @@ def category_detail(request, id):
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+# @api_view(['GET', 'POST'])
+# def cart(request):
+#     if request.method == 'GET':       
+
+#         all_carts = Cart.objects.all()              
+
+#         all_carts_json = CartSerializer(all_carts, many=True).data
+       
+#         return Response(all_carts_json)
+
+#     elif request.method == 'POST':
+#         # this line creates a serializer object from json data        
+#         serializer = CartSerializer(data=request.data)
+#         # this line checkes validity of json data 
+#         if serializer.is_valid():
+#             # the serializer.save - saves a new product object
+#             serializer.save()
+#             # returns the object that was created including id
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         # if not valid. return errors.
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)     
+
 @api_view(['GET', 'POST'])
 def cart(request):
-    if request.method == 'GET':       
+    if request.method == 'GET':
+        # Get user ID from the request query parameters
+        user_id = request.query_params.get('user_id')
 
-        all_carts = Cart.objects.all()              
+        # Filter carts based on user ID if provided
+        if user_id is not None:
+            user_carts = Cart.objects.filter(customer=user_id)
+        else:
+            # If user ID is not provided, return all carts
+            user_carts = Cart.objects.all()
 
-        all_carts_json = CartSerializer(all_carts, many=True).data
-       
-        return Response(all_carts_json)
+        # Serialize the filtered carts
+        user_carts_json = CartSerializer(user_carts, many=True).data
+
+        return Response(user_carts_json)
 
     elif request.method == 'POST':
-        # this line creates a serializer object from json data        
         serializer = CartSerializer(data=request.data)
-        # this line checkes validity of json data 
         if serializer.is_valid():
-            # the serializer.save - saves a new product object
             serializer.save()
-            # returns the object that was created including id
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # if not valid. return errors.
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)     
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def cart_detail(request, id):

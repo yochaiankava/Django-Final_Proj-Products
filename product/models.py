@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.conf import settings
 from enum import Enum
@@ -37,9 +38,13 @@ class Category(models.Model):
         return f'{self.name}'
 
 class Cart(models.Model):
-    date = models.DateTimeField(null=False)
+    date = models.DateTimeField(default=timezone.now, null=False)
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
-    status = models.CharField(max_length=50, choices=[(tag.name, tag.value) for tag in Options], default=Options.DEFAULT_STATUS.value)
+    status = models.CharField(
+        max_length=50,
+        choices=[(tag.value, tag.value) for tag in Options],
+        default=Options.DEFAULT_STATUS.value 
+    )
 
     def __str__(self):
         return f"{self.date} - {self.customer} - {self.status}" 
