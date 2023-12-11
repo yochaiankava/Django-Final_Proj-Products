@@ -21,12 +21,20 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class CartItemSerializer(serializers.ModelSerializer):   
     product_name = serializers.SerializerMethodField()
+    product_stock = serializers.SerializerMethodField()
+    product_price = serializers.SerializerMethodField()
+    
     class Meta:
         model = CartItem
         fields = '__all__'
 
     def get_product_name(self, obj):
-        return obj.product.name       
+        return obj.product.name  
+    def get_product_stock(self, obj):
+        return obj.product.stock     
+    def get_product_price(self, obj):
+        return obj.product.price      
+           
 
 class CartSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()

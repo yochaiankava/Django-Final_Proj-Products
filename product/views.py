@@ -3,14 +3,17 @@ from django.shortcuts import render
 from .models import *
 from .serializers import *
 # from django.views.decorators.csrf import csrf_exempt
+# from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db.models import Sum
 
 
 
 
+# @csrf_exempt
 @api_view(['GET', 'POST'])
 # @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
@@ -48,13 +51,23 @@ def products(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+# @csrf_exempt
+# @authentication_classes([JWTAuthentication])
+# @permission_classes([IsAuthenticated])
+@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
+# @authentication_classes([JWTAuthentication])
+# @permission_classes([IsAuthenticated])
 def product_detail(request, id):    
     # get object from db by id
     try:
         product = Product.objects.get(pk=id)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        print('Received PATCH request for product ID:', id)
+        print('Request data:', request.data)
+
     # GET
     if request.method == 'GET':
         # create serializer from object
@@ -210,6 +223,16 @@ def cart_detail(request, id):
         cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+
+# def get_cart_total(request, cart_id):
+#     try:
+#         cart = Cart.objects.get(id=cart_id)
+#         total = cart.get_cart_total()
+#           return Response({'total': total})
+#     except Exception as e:
+#         return Response({'error': str(e)}, status=500)
+
 @api_view(['GET', 'POST'])
 def cart_items(request):
     if request.method == 'GET':
@@ -246,7 +269,28 @@ def cart_item_detail(request, pk):
 
     elif request.method == 'DELETE':
         cart_item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)        
+        return Response(status=status.HTTP_204_NO_CONTENT)    
+
+from django.db.models import Sum
+
+@api_view(['GET'])
+def cart_items_count(request, user_id):
+    try:
+        # Retrieve the user's pending cart
+        pending_cart = Cart.objects.filter(customer=user_id, status='Pending').first()
+
+        if pending_cart:
+            # If a pending cart is found, retrieve the total quantity of its cart items
+            total_count = CartItem.objects.filter(cart=pending_cart).aggregate(Sum('quantity'))['quantity__sum'] or 0
+        else:
+            # If no pending cart is found, set the total count to 0
+            total_count = 0
+
+        return Response({'count': total_count})
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+           
 
 @api_view()
 def gift_cards(request):
