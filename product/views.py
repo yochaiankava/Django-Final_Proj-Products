@@ -2,8 +2,8 @@ from rest_framework import status
 from django.shortcuts import render
 from .models import *
 from .serializers import *
-# from django.views.decorators.csrf import csrf_exempt
-# from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -13,10 +13,10 @@ from django.db.models import Sum
 
 
 
-# @csrf_exempt
 @api_view(['GET', 'POST'])
 # @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
+@csrf_exempt
 def products(request):
     # print(request.headers)
     if request.method == 'GET':
@@ -51,12 +51,11 @@ def products(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @csrf_exempt
-# @authentication_classes([JWTAuthentication])
-# @permission_classes([IsAuthenticated])
+
 @api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
-# @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
+# @authentication_classes([JWTAuthentication])
+@csrf_exempt
 def product_detail(request, id):    
     # get object from db by id
     try:
@@ -88,6 +87,36 @@ def product_detail(request, id):
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+@api_view(['PUT'])
+def update_product_stock(request, id):
+    try:
+        product = Product.objects.get(pk=id)
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
+
+    if request.method == 'PUT':
+        # Retrieve the stock from the request data
+        new_stock = request.data.get('stock')
+
+        # Check if new_stock is None before conversion
+        if new_stock is not None:
+            try:
+                # Attempt to convert new_stock to an integer
+                new_stock = int(new_stock)
+                # Update the product stock
+                product.stock = new_stock
+                product.save()
+                return JsonResponse({'message': 'Stock updated successfully'})
+            except ValueError:
+                return JsonResponse({'error': 'Invalid stock value'}, status=400)
+        else:
+            return JsonResponse({'error': 'Stock is required in the request body'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 # @api_view()
 # def categories(request):
@@ -171,6 +200,7 @@ def category_detail(request, id):
 #         # if not valid. return errors.
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)     
 
+# @csrf_exempt
 @api_view(['GET', 'POST'])
 def cart(request):
     if request.method == 'GET':
@@ -196,6 +226,7 @@ def cart(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
 @api_view(['GET', 'PUT', 'DELETE'])
 def cart_detail(request, id):
     # get object from db by id
@@ -222,6 +253,29 @@ def cart_detail(request, id):
         # product.save()
         cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@csrf_exempt
+@api_view(['PUT'])
+def update_cart_status(request, id):
+    try:
+        cart = Cart.objects.get(pk=id)
+    except Cart.DoesNotExist:
+        return JsonResponse({'error': 'Cart not found'}, status=404)
+
+    if request.method == 'PUT':
+        # Retrieve the status from the request data
+        new_status = request.data.get('status')
+
+        # Check if new_status is not None
+        if new_status is not None:
+            # Update the cart status
+            cart.status = new_status
+            cart.save()
+            return JsonResponse({'message': 'Cart status updated successfully'})
+        else:
+            return JsonResponse({'error': 'Status is required in the request body'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 

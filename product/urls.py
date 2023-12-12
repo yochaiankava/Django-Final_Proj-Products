@@ -9,11 +9,13 @@ urlpatterns = [
     
     
     path('product/', views.products, name="products"), 
-    path('product/<id>', views.product_detail, name="product_detail"), 
+    path('product/<int:id>/', views.product_detail, name='product_detail'), 
+     path('product/<int:id>/update_stock/', views.update_product_stock, name='update_product_stock'),
     path('category/', views.categories, name="categories"),    
     path('category/<id>', views.category_detail, name="category_detail"), 
     path('cart/', views.cart, name="cart"),    
     path('cart/<id>', views.cart_detail, name="cart_detail"), 
+    path('cart/<int:id>/update_status/', views.update_cart_status, name='update_cart_status'),
     path('cartitem/', views.cart_items, name="cart_items"),  
     path('cartitem/<int:pk>/', views.cart_item_detail, name="cart_item_detail"),  
     path('gift_cards/', views.gift_cards, name="gift_cards"), 
