@@ -200,12 +200,12 @@ def category_detail(request, id):
 #         # if not valid. return errors.
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)     
 
-# @csrf_exempt
+@csrf_exempt
 @api_view(['GET', 'POST'])
 def cart(request):
     if request.method == 'GET':
         # Get user ID from the request query parameters
-        user_id = request.query_params.get('user_id')
+        user_id = request.query_params.get('user_id')       
 
         # Filter carts based on user ID if provided
         if user_id is not None:
