@@ -28,6 +28,8 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include('product.urls')),
+    path("", views.react_template), 
+    re_path(r'^.*', views.react_template),
 
 ]
 
