@@ -20,7 +20,7 @@ urlpatterns = [
     path('cartitem/<int:pk>/', views.cart_item_detail, name="cart_item_detail"),  
     path('gift_cards/', views.gift_cards, name="gift_cards"), 
     path('cartitems/count/<int:user_id>/', cart_items_count, name='cart_items_count'),
-    # path('cart/<int:cart_id>/total/', get_cart_total, name='get_cart_total'),
+    path('register/', views.register, name='register'),
     
 ] 
 

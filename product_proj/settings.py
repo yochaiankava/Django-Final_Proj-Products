@@ -60,7 +60,7 @@ CORS_ALLOWED_ORIGINS = [
    "http://localhost:3000",
    "https://yochaiankava.github.io",
    "https://django-final-proj-products.onrender.com",
-   "https://react-final-proj-products-web.onrender.com/",
+   "https://react-final-proj-products-web.onrender.com",
    
 
    

@@ -2,6 +2,30 @@ from rest_framework import serializers
 from .models import *
 
 
+class UserSerializer(serializers.ModelSerializer):
+    phone_number = serializers.IntegerField(required=False, allow_null=True, write_only=True)
+    address = serializers.CharField(required=False, allow_null=True, write_only=True)
+    
+    class Meta:
+        model = MyUser
+        fields = ['id', 'username', 'email', 'phone_number', 'address', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def validate_phone_number(self, value):
+        # Convert empty strings to None
+        if value == '':
+            return None
+
+    def validate_address(self, value):
+        # Convert empty strings to None
+        if value == '':
+            return None       
+                       
+        return value        
+
+    def create(self, validated_data):
+        user = MyUser.objects.create_user(**validated_data)
+        return user
 
 class ProductSerializer(serializers.ModelSerializer):
     # category = CategorySerializer(many=True,read_only=True)
