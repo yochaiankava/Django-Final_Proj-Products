@@ -11,7 +11,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Sum
 from .serializers import UserSerializer
 
-# User = get_user_model()
 
 @api_view(['POST'])
 @csrf_exempt
